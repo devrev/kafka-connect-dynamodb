@@ -62,7 +62,7 @@ public class DynamoDBSourceConnectorConfig extends AbstractConfig {
 	public static final String DST_TOPIC_PREFIX_DISPLAY = "Topic prefix";
 	public static final String DST_TOPIC_PREFIX_DEFAULT = "dynamodb-";
 
-	public static final String DST_TOPIC_MAP_CONFIG = "kafka.topic.namespace.map";
+	public static final String DST_TOPIC_MAP_CONFIG = "kafka.topic.map";
 	public static final String DST_TOPIC_MAP_DOC = "Define Kafka topic namespace map.";
 	public static final String DST_TOPIC_MAP_DISPLAY = "Topic namespace map";
 	public static final String DST_TOPIC_MAP_DEFAULT = null;
