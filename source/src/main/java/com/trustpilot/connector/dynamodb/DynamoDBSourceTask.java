@@ -264,7 +264,7 @@ public class DynamoDBSourceTask extends SourceTask {
             LOGGER.debug(
                     "INIT_SYNC iteration returned {}. Status: {}", result.size(), sourceInfo);
         } else {
-            LOGGER.debug("INIT_SYNC FINISHED: {}", sourceInfo);
+            LOGGER.info("INIT_SYNC FINISHED: {}", sourceInfo);
         }
         return result;
     }
