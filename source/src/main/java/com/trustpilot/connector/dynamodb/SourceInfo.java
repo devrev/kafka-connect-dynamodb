@@ -2,13 +2,14 @@ package com.trustpilot.connector.dynamodb;
 
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.trustpilot.connector.dynamodb.utils.SchemaNameAdjuster;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.SchemaBuilder;
 import org.apache.kafka.connect.data.Struct;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 
-import java.lang.reflect.Type;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.LinkedHashMap;
@@ -24,6 +25,7 @@ import java.util.Map;
  */
 public class SourceInfo {
     private static final Gson gson = new Gson();
+    private static final ObjectMapper objectMapper = new ObjectMapper();
     private final Clock clock;
 
     public final String version;
@@ -112,7 +114,14 @@ public class SourceInfo {
         offset.put(INIT_SYNC_START, sourceInfo.lastInitSyncStart.toEpochMilli());
 
         if (sourceInfo.exclusiveStartKey != null) {
-            offset.put(EXCLUSIVE_START_KEY, gson.toJson(sourceInfo.exclusiveStartKey));
+            if (sourceInfo.exclusiveStartKey != null) {
+            try {
+                offset.put(EXCLUSIVE_START_KEY, objectMapper.writeValueAsString(sourceInfo.exclusiveStartKey));
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException("Failed to serialize exclusiveStartKey", e);
+            }
+            }
+            // offset.put(EXCLUSIVE_START_KEY, gson.toJson(sourceInfo.exclusiveStartKey));
         }
 
         if (sourceInfo.lastInitSyncEnd != null) {
@@ -130,9 +139,14 @@ public class SourceInfo {
         sourceInfo.lastInitSyncStart = Instant.ofEpochMilli((Long) offset.get(INIT_SYNC_START));
 
         if (offset.containsKey(EXCLUSIVE_START_KEY)) {
-
-            Type empMapType = new TypeToken<Map<String, AttributeValue>>() {}.getType();
-            sourceInfo.exclusiveStartKey = gson.fromJson((String)offset.get(EXCLUSIVE_START_KEY), empMapType);
+            try {
+                String json = (String) offset.get(EXCLUSIVE_START_KEY);
+                sourceInfo.exclusiveStartKey = objectMapper.readValue(json, new TypeReference<Map<String, AttributeValue>>() {});
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException("Failed to deserialize exclusiveStartKey", e);
+            }
+            // Type empMapType = new TypeToken<Map<String, AttributeValue>>() {}.getType();
+            // sourceInfo.exclusiveStartKey = gson.fromJson((String)offset.get(EXCLUSIVE_START_KEY), empMapType);
         }
 
         if (offset.containsKey(INIT_SYNC_END)) {
