@@ -52,6 +52,11 @@ public class DynamoDBSourceConnectorConfig extends AbstractConfig {
 	public static final String SRC_DYNAMODB_TABLE_WHITELIST_DISPLAY = "Tables whitelist";
 	public static final String SRC_DYNAMODB_TABLE_WHITELIST_DEFAULT = null;
 
+	public static final String SRC_DYNAMODB_TABLE_VERSION_CONFIG = "dynamodb.table.version";
+	public static final String SRC_DYNAMODB_TABLE_VERSION_DOC = "Define version of the table. This is used to create a unique table connector name for the table.";
+	public static final String SRC_DYNAMODB_TABLE_VERSION_DISPLAY = "Table version";
+	public static final String SRC_DYNAMODB_TABLE_VERSION_DEFAULT = "";
+
 	public static final String SRC_KCL_TABLE_BILLING_MODE_CONFIG = "kcl.table.billing.mode";
 	public static final String SRC_KCL_TABLE_BILLING_MODE_DOC = "Define billing mode for internal table created by the KCL library. Default is provisioned.";
 	public static final String SRC_KCL_TABLE_BILLING_MODE_DISPLAY = "KCL table billing mode";
@@ -176,6 +181,7 @@ public class DynamoDBSourceConnectorConfig extends AbstractConfig {
 						ConfigDef.Width.MEDIUM,
 						SRC_DYNAMODB_TABLE_WHITELIST_DISPLAY)
 
+
 				.define(SRC_KCL_TABLE_BILLING_MODE_CONFIG,
 						ConfigDef.Type.STRING,
 						SRC_KCL_TABLE_BILLING_MODE_DEFAULT,
@@ -184,6 +190,15 @@ public class DynamoDBSourceConnectorConfig extends AbstractConfig {
 						AWS_GROUP, 9,
 						ConfigDef.Width.MEDIUM,
 						SRC_KCL_TABLE_BILLING_MODE_DISPLAY)
+
+				.define(SRC_DYNAMODB_TABLE_VERSION_CONFIG,
+						ConfigDef.Type.STRING,
+						SRC_DYNAMODB_TABLE_VERSION_DEFAULT,
+						ConfigDef.Importance.LOW,
+						SRC_DYNAMODB_TABLE_VERSION_DOC,
+						AWS_GROUP, 10,
+						ConfigDef.Width.MEDIUM,
+						SRC_DYNAMODB_TABLE_VERSION_DISPLAY)
 
 				.define(DST_TOPIC_PREFIX_CONFIG,
 						ConfigDef.Type.STRING,
@@ -284,6 +299,10 @@ public class DynamoDBSourceConnectorConfig extends AbstractConfig {
 
 	public List<String> getWhitelistTables() {
 		return getList(SRC_DYNAMODB_TABLE_WHITELIST_CONFIG) != null ? getList(SRC_DYNAMODB_TABLE_WHITELIST_CONFIG) : null;
+	}
+
+	public String getTableVersion() {
+		return getString(SRC_DYNAMODB_TABLE_VERSION_CONFIG);
 	}
 
 	public BillingMode getKCLTableBillingMode() {
