@@ -10,6 +10,7 @@ public interface KclWorker {
                String tableName,
                String taskid,
                String endpoint,
+               String tableVersion,
                BillingMode kclTablebillingMode);
 
     void stop();

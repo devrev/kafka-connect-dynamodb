@@ -114,12 +114,10 @@ public class SourceInfo {
         offset.put(INIT_SYNC_START, sourceInfo.lastInitSyncStart.toEpochMilli());
 
         if (sourceInfo.exclusiveStartKey != null) {
-            if (sourceInfo.exclusiveStartKey != null) {
             try {
                 offset.put(EXCLUSIVE_START_KEY, objectMapper.writeValueAsString(sourceInfo.exclusiveStartKey));
             } catch (JsonProcessingException e) {
                 throw new RuntimeException("Failed to serialize exclusiveStartKey", e);
-            }
             }
             // offset.put(EXCLUSIVE_START_KEY, gson.toJson(sourceInfo.exclusiveStartKey));
         }

@@ -208,6 +208,7 @@ public class DynamoDBSourceTaskTests {
                 eq(tableName),
                 eq("testTask1"),
                 eq(null),
+                eq(""),
                 eq(BillingMode.PROVISIONED)
         );
     }

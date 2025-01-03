@@ -49,13 +49,14 @@ public class KclWorkerImpl implements KclWorker {
                       String tableName,
                       String taskid,
                       String endpoint,
+                      String tableVersion,
                       BillingMode kclTableBillingMode) {
         IRecordProcessorFactory recordProcessorFactory = new KclRecordProcessorFactory(tableName, eventsQueue,
                 recordProcessorsRegister);
 
         KinesisClientLibConfiguration clientLibConfiguration = getClientLibConfiguration(tableName,
                 taskid,
-                dynamoDBClient, endpoint, kclTableBillingMode);
+                dynamoDBClient, endpoint, tableVersion, kclTableBillingMode);
 
         AmazonDynamoDBStreamsAdapterClient adapterClient = new AmazonDynamoDBStreamsAdapterClient(dynamoDBStreamsClient);
 
@@ -123,11 +124,16 @@ public class KclWorkerImpl implements KclWorker {
                                                             String taskid,
                                                             AmazonDynamoDB dynamoDBClient,
                                                             String endpoint,
+                                                            String tableVersion,
                                                             BillingMode kclTableBillingMode) {
 
         String streamArn = dynamoDBClient.describeTable(
                 new DescribeTableRequest()
                         .withTableName(tableName)).getTable().getLatestStreamArn();
+
+        if (tableVersion != null && !tableVersion.isEmpty()) {
+            tableName = tableName + "-" + tableVersion;
+        }
 
         return new KinesisClientLibConfiguration(
                 Constants.KCL_WORKER_APPLICATION_NAME_PREFIX + tableName,
