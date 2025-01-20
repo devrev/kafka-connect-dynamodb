@@ -89,6 +89,7 @@ public class DynamoDBSourceTask extends SourceTask {
     private SourceInfo sourceInfo;
     private TableDescription tableDesc;
     private int initSyncDelay;
+    private boolean initSyncEnabled = false;
 
     @SuppressWarnings("unused")
     //Used by Confluent platform to initialize connector
@@ -123,6 +124,7 @@ public class DynamoDBSourceTask extends SourceTask {
         tableDesc = client.describeTable(config.getTableName()).getTable();
 
         initSyncDelay = config.getInitSyncDelay();
+        initSyncEnabled = config.getInitSyncEnable();
 
         LOGGER.debug("Getting offset for table: {}", tableDesc.getTableName());
         setStateFromOffset();
@@ -163,7 +165,11 @@ public class DynamoDBSourceTask extends SourceTask {
         } else {
             LOGGER.debug("No stored offset found for table: {}", tableDesc.getTableName());
             sourceInfo = new SourceInfo(tableDesc.getTableName(), clock);
-            sourceInfo.startInitSync(); // InitSyncStatus always needs to run after adding new table
+            if (initSyncEnabled) {
+                sourceInfo.startInitSync(); // InitSyncStatus always needs to run after adding new table
+            } else{
+                sourceInfo.initSyncStatus = InitSyncStatus.FINISHED;
+            }
         }
     }
 
@@ -296,7 +302,7 @@ public class DynamoDBSourceTask extends SourceTask {
                 //
                 // NOTE2: KCL worker reads from multiple shards at the same time in a loop.
                 // Which means that there can be messages from various time instances (before and after init sync start instance).
-                if (isPreInitSyncRecord(arrivalTimestamp)) {
+                if (initSyncEnabled && isPreInitSyncRecord(arrivalTimestamp)) {
                     LOGGER.debug(
                             "Dropping old record to prevent another INIT_SYNC. ShardId: {} " +
                                     "ApproximateArrivalTimestamp: {} CurrentTime: {}",
@@ -315,7 +321,7 @@ public class DynamoDBSourceTask extends SourceTask {
                 // * connector was down for some time
                 // * connector is lagging
                 // * connector failed to finish init sync in acceptable time frame
-                if (recordIsInDangerZone(arrivalTimestamp)) {
+                if (initSyncEnabled && recordIsInDangerZone(arrivalTimestamp)) {
                     sourceInfo.startInitSync();
 
                     LOGGER.info(
