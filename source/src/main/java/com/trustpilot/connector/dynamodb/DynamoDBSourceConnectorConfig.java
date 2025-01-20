@@ -17,6 +17,11 @@ public class DynamoDBSourceConnectorConfig extends AbstractConfig {
 	public static final String SRC_INIT_SYNC_DELAY_DISPLAY = "INIT_SYNC delay";
 	public static final int SRC_INIT_SYNC_DELAY_DEFAULT = 60;
 
+	public static final String SRC_INIT_SYNC_ENABLE_CONFIG = "init.sync.enable";
+	public static final String SRC_INIT_SYNC_ENABLE_DOC = "Define if INIT_SYNC should be enabled.";
+	public static final String SRC_INIT_SYNC_ENABLE_DISPLAY = "INIT_SYNC enable";
+	public static final boolean SRC_INIT_SYNC_ENABLE_DEFAULT = false;
+
   	public static final String AWS_REGION_CONFIG = "aws.region";
 	public static final String AWS_REGION_DOC = "Define AWS region.";
 	public static final String AWS_REGION_DISPLAY = "Region";
@@ -223,16 +228,25 @@ public class DynamoDBSourceConnectorConfig extends AbstractConfig {
 						SRC_INIT_SYNC_DELAY_DEFAULT,
 						ConfigDef.Importance.LOW,
 						SRC_INIT_SYNC_DELAY_DOC,
-						CONNECTOR_GROUP, 2,
+						CONNECTOR_GROUP, 4,
 						ConfigDef.Width.MEDIUM,
 						SRC_INIT_SYNC_DELAY_DISPLAY)
+
+				.define(SRC_INIT_SYNC_ENABLE_CONFIG,
+						ConfigDef.Type.BOOLEAN,
+						SRC_INIT_SYNC_ENABLE_DEFAULT,
+						ConfigDef.Importance.LOW,
+						SRC_INIT_SYNC_ENABLE_DOC,
+						CONNECTOR_GROUP, 3,
+						ConfigDef.Width.MEDIUM,
+						SRC_INIT_SYNC_ENABLE_DISPLAY)
 
 				.define(REDISCOVERY_PERIOD_CONFIG,
 						ConfigDef.Type.LONG,
 						REDISCOVERY_PERIOD_DEFAULT,
 						ConfigDef.Importance.LOW,
 						REDISCOVERY_PERIOD_DOC,
-						CONNECTOR_GROUP, 4,
+						CONNECTOR_GROUP, 5,
 						ConfigDef.Width.MEDIUM,
 						REDISCOVERY_PERIOD_DISPLAY)
 				;
@@ -287,6 +301,10 @@ public class DynamoDBSourceConnectorConfig extends AbstractConfig {
 
 	public int getInitSyncDelay() {
 		return (int)get(SRC_INIT_SYNC_DELAY_CONFIG);
+	}
+
+	public boolean getInitSyncEnable() {
+		return getBoolean(SRC_INIT_SYNC_ENABLE_CONFIG);
 	}
 
 	public String getDynamoDBServiceEndpoint() {
