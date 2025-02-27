@@ -32,7 +32,7 @@ public class SourceInfo {
     public final String tableName;
     public boolean initSync;
     public InitSyncStatus initSyncStatus = InitSyncStatus.UNDEFINED;
-    public Instant lastInitSyncStart;
+    public Instant lastInitSyncStart = Instant.now();
     public Instant lastInitSyncEnd = null;
     public long initSyncCount = 0L;
 
