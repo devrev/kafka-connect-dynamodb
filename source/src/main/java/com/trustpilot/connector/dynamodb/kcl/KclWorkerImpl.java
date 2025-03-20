@@ -49,13 +49,14 @@ public class KclWorkerImpl implements KclWorker {
                       String tableName,
                       String taskid,
                       String endpoint,
+                      String tableVersion,
                       BillingMode kclTableBillingMode) {
         IRecordProcessorFactory recordProcessorFactory = new KclRecordProcessorFactory(tableName, eventsQueue,
                 recordProcessorsRegister);
 
         KinesisClientLibConfiguration clientLibConfiguration = getClientLibConfiguration(tableName,
                 taskid,
-                dynamoDBClient, endpoint, kclTableBillingMode);
+                dynamoDBClient, endpoint, tableVersion, kclTableBillingMode);
 
         AmazonDynamoDBStreamsAdapterClient adapterClient = new AmazonDynamoDBStreamsAdapterClient(dynamoDBStreamsClient);
 
@@ -77,7 +78,7 @@ public class KclWorkerImpl implements KclWorker {
                         cloudWatchClient);
 
 
-        LOGGER.info("Creating KCL worker for Stream: {} ApplicationName: {} WorkerId: {}",
+        LOGGER.debug("Creating KCL worker for Stream: {} ApplicationName: {} WorkerId: {}",
                 clientLibConfiguration.getStreamName(),
                 clientLibConfiguration.getApplicationName(),
                 clientLibConfiguration.getWorkerIdentifier()
@@ -123,11 +124,16 @@ public class KclWorkerImpl implements KclWorker {
                                                             String taskid,
                                                             AmazonDynamoDB dynamoDBClient,
                                                             String endpoint,
+                                                            String tableVersion,
                                                             BillingMode kclTableBillingMode) {
 
         String streamArn = dynamoDBClient.describeTable(
                 new DescribeTableRequest()
                         .withTableName(tableName)).getTable().getLatestStreamArn();
+
+        if (tableVersion != null && !tableVersion.isEmpty()) {
+            tableName = tableName + "-" + tableVersion;
+        }
 
         return new KinesisClientLibConfiguration(
                 Constants.KCL_WORKER_APPLICATION_NAME_PREFIX + tableName,
@@ -156,7 +162,7 @@ public class KclWorkerImpl implements KclWorker {
                 .withFailoverTimeMillis(Constants.KCL_FAILOVER_TIME)
 
                 // logs warning if RecordProcessor task is blocked for long time periods.
-                .withLogWarningForTaskAfterMillis(60 * 1000)
+                .withLogWarningForTaskAfterMillis(60 * 60 * 1000)
 
                 // fix some random issues with https://github.com/awslabs/amazon-kinesis-client/issues/164
                 .withIgnoreUnexpectedChildShards(true)

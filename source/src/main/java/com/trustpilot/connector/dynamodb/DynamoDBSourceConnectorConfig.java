@@ -17,6 +17,11 @@ public class DynamoDBSourceConnectorConfig extends AbstractConfig {
 	public static final String SRC_INIT_SYNC_DELAY_DISPLAY = "INIT_SYNC delay";
 	public static final int SRC_INIT_SYNC_DELAY_DEFAULT = 60;
 
+	public static final String SRC_INIT_SYNC_ENABLE_CONFIG = "init.sync.enable";
+	public static final String SRC_INIT_SYNC_ENABLE_DOC = "Define if INIT_SYNC should be enabled.";
+	public static final String SRC_INIT_SYNC_ENABLE_DISPLAY = "INIT_SYNC enable";
+	public static final boolean SRC_INIT_SYNC_ENABLE_DEFAULT = false;
+
   	public static final String AWS_REGION_CONFIG = "aws.region";
 	public static final String AWS_REGION_DOC = "Define AWS region.";
 	public static final String AWS_REGION_DISPLAY = "Region";
@@ -51,6 +56,11 @@ public class DynamoDBSourceConnectorConfig extends AbstractConfig {
 	public static final String SRC_DYNAMODB_TABLE_WHITELIST_DOC = "Define whitelist of dynamodb table names. This overrides table auto-discovery by ingestion tag.";
 	public static final String SRC_DYNAMODB_TABLE_WHITELIST_DISPLAY = "Tables whitelist";
 	public static final String SRC_DYNAMODB_TABLE_WHITELIST_DEFAULT = null;
+
+	public static final String SRC_DYNAMODB_TABLE_VERSION_CONFIG = "dynamodb.table.version";
+	public static final String SRC_DYNAMODB_TABLE_VERSION_DOC = "Define version of the table. This is used to create a unique table connector name for the table.";
+	public static final String SRC_DYNAMODB_TABLE_VERSION_DISPLAY = "Table version";
+	public static final String SRC_DYNAMODB_TABLE_VERSION_DEFAULT = "";
 
 	public static final String SRC_KCL_TABLE_BILLING_MODE_CONFIG = "kcl.table.billing.mode";
 	public static final String SRC_KCL_TABLE_BILLING_MODE_DOC = "Define billing mode for internal table created by the KCL library. Default is provisioned.";
@@ -176,6 +186,7 @@ public class DynamoDBSourceConnectorConfig extends AbstractConfig {
 						ConfigDef.Width.MEDIUM,
 						SRC_DYNAMODB_TABLE_WHITELIST_DISPLAY)
 
+
 				.define(SRC_KCL_TABLE_BILLING_MODE_CONFIG,
 						ConfigDef.Type.STRING,
 						SRC_KCL_TABLE_BILLING_MODE_DEFAULT,
@@ -184,6 +195,15 @@ public class DynamoDBSourceConnectorConfig extends AbstractConfig {
 						AWS_GROUP, 9,
 						ConfigDef.Width.MEDIUM,
 						SRC_KCL_TABLE_BILLING_MODE_DISPLAY)
+
+				.define(SRC_DYNAMODB_TABLE_VERSION_CONFIG,
+						ConfigDef.Type.STRING,
+						SRC_DYNAMODB_TABLE_VERSION_DEFAULT,
+						ConfigDef.Importance.LOW,
+						SRC_DYNAMODB_TABLE_VERSION_DOC,
+						AWS_GROUP, 10,
+						ConfigDef.Width.MEDIUM,
+						SRC_DYNAMODB_TABLE_VERSION_DISPLAY)
 
 				.define(DST_TOPIC_PREFIX_CONFIG,
 						ConfigDef.Type.STRING,
@@ -208,16 +228,25 @@ public class DynamoDBSourceConnectorConfig extends AbstractConfig {
 						SRC_INIT_SYNC_DELAY_DEFAULT,
 						ConfigDef.Importance.LOW,
 						SRC_INIT_SYNC_DELAY_DOC,
-						CONNECTOR_GROUP, 2,
+						CONNECTOR_GROUP, 4,
 						ConfigDef.Width.MEDIUM,
 						SRC_INIT_SYNC_DELAY_DISPLAY)
+
+				.define(SRC_INIT_SYNC_ENABLE_CONFIG,
+						ConfigDef.Type.BOOLEAN,
+						SRC_INIT_SYNC_ENABLE_DEFAULT,
+						ConfigDef.Importance.LOW,
+						SRC_INIT_SYNC_ENABLE_DOC,
+						CONNECTOR_GROUP, 3,
+						ConfigDef.Width.MEDIUM,
+						SRC_INIT_SYNC_ENABLE_DISPLAY)
 
 				.define(REDISCOVERY_PERIOD_CONFIG,
 						ConfigDef.Type.LONG,
 						REDISCOVERY_PERIOD_DEFAULT,
 						ConfigDef.Importance.LOW,
 						REDISCOVERY_PERIOD_DOC,
-						CONNECTOR_GROUP, 4,
+						CONNECTOR_GROUP, 5,
 						ConfigDef.Width.MEDIUM,
 						REDISCOVERY_PERIOD_DISPLAY)
 				;
@@ -274,6 +303,10 @@ public class DynamoDBSourceConnectorConfig extends AbstractConfig {
 		return (int)get(SRC_INIT_SYNC_DELAY_CONFIG);
 	}
 
+	public boolean getInitSyncEnable() {
+		return getBoolean(SRC_INIT_SYNC_ENABLE_CONFIG);
+	}
+
 	public String getDynamoDBServiceEndpoint() {
 		return getString(AWS_DYNAMODB_SERVICE_ENDPOINT_CONFIG);
 	}
@@ -284,6 +317,10 @@ public class DynamoDBSourceConnectorConfig extends AbstractConfig {
 
 	public List<String> getWhitelistTables() {
 		return getList(SRC_DYNAMODB_TABLE_WHITELIST_CONFIG) != null ? getList(SRC_DYNAMODB_TABLE_WHITELIST_CONFIG) : null;
+	}
+
+	public String getTableVersion() {
+		return getString(SRC_DYNAMODB_TABLE_VERSION_CONFIG);
 	}
 
 	public BillingMode getKCLTableBillingMode() {

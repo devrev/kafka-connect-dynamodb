@@ -30,6 +30,7 @@ public class DynamoDBSourceConnector extends SourceConnector {
     private TablesProvider tablesProvider;
 
     private List<String> consumableTables;
+    private String tableVersion;
 
     private volatile Timer timer;
 
@@ -76,7 +77,7 @@ public class DynamoDBSourceConnector extends SourceConnector {
                         config.getSrcDynamoDBEnvTagValue());
             }
         }
-
+        tableVersion = config.getTableVersion();
         startBackgroundReconfigurationTasks(this.context, config.getRediscoveryPeriod());
     }
 
@@ -90,10 +91,10 @@ public class DynamoDBSourceConnector extends SourceConnector {
             public void run() {
                 try {
                     if (consumableTables != null) {
-                        LOGGER.info("Looking for changed DynamoDB tables");
+                        LOGGER.debug("Looking for changed DynamoDB tables");
                         List<String> consumableTablesRefreshed = tablesProvider.getConsumableTables();
                         if (!consumableTables.equals(consumableTablesRefreshed)) {
-                            LOGGER.info("Detected changes in DynamoDB tables. Requesting tasks reconfiguration.");
+                            LOGGER.debug("Detected changes in DynamoDB tables. Requesting tasks reconfiguration.");
                             connectorContext.requestTaskReconfiguration();
                         }
                     }
@@ -131,11 +132,13 @@ public class DynamoDBSourceConnector extends SourceConnector {
 
         List<Map<String, String>> taskConfigs = new ArrayList<>(consumableTables.size());
         for (String table : consumableTables) {
-            LOGGER.info("Configuring task for table {}", table);
+            LOGGER.debug("Configuring task for table {}", table);
             Map<String, String> taskProps = new HashMap<>(configProperties);
 
             taskProps.put(DynamoDBSourceTaskConfig.TABLE_NAME_CONFIG, table);
-
+            if (tableVersion != null && !tableVersion.isEmpty()) {
+                taskProps.put(DynamoDBSourceTaskConfig.TABLE_VERSION_CONFIG, tableVersion);
+            }
             // In feature we might allow having more then one task per table for performance reasons.
             // TaskID will be needed for KCL worker identifiers and also to orchestrate init sync.
             taskProps.put(DynamoDBSourceTaskConfig.TASK_ID_CONFIG, "task-1");
