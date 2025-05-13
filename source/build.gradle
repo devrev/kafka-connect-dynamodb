@@ -1,7 +1,7 @@
 description = "Kafka Connect Source connector that reads from DynamoDB streams"
 
 dependencies {
-    implementation 'com.google.code.gson:gson:2.8.2'
+    implementation 'com.google.code.gson:gson:2.8.9'
     implementation 'com.amazonaws:aws-java-sdk-resourcegroupstaggingapi:1.11.551'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
 
