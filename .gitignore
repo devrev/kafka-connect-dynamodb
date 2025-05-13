@@ -22,6 +22,8 @@ gradle-app.setting
 *.tar.gz
 *.rar
 
+.dccache
+
 .settings
 .project
 .classpath
