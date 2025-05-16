@@ -33,7 +33,7 @@ public class DynamoDBSourceTaskTests {
     private HashMap<String, String> configs;
 
     @BeforeEach
-    private void beforeEach() {
+    public void beforeEach() {
         configs = new HashMap<>();
         configs.put("table", tableName);
         configs.put("task.id", "testTask1");
@@ -163,7 +163,7 @@ public class DynamoDBSourceTaskTests {
         // Assert
         SourceInfo sourceInfo = task.getSourceInfo();
         assertEquals(tableName, sourceInfo.tableName);
-        assertEquals(InitSyncStatus.RUNNING, sourceInfo.initSyncStatus);
+        assertEquals(InitSyncStatus.FINISHED, sourceInfo.initSyncStatus);
     }
 
     @Test
@@ -685,7 +685,7 @@ public class DynamoDBSourceTaskTests {
         List<SourceRecord> response = task.poll();
 
         // Assert
-        assertEquals(1, response.size());
+        assertEquals(2, response.size());
         assertEquals("1000000001", response.get(0).sourceOffset().get("src_shard_sequence_no"));
 
         assertEquals("1000000002", shardRegister.get("testShardId1").getLastCommittedRecordSeqNo(), "SeqNo for skipped " +

@@ -1,6 +1,7 @@
 package com.trustpilot.connector.dynamodb;
 
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.gson.Gson;
 import com.trustpilot.connector.dynamodb.utils.SchemaNameAdjuster;
 import org.apache.kafka.connect.data.Schema;
@@ -58,6 +59,7 @@ public class SourceInfo {
         this.version = "1.0";
         this.tableName = tableName;
         this.clock = clock;
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 
     public void startInitSync() {

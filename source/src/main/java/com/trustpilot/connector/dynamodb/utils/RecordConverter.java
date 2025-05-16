@@ -15,12 +15,8 @@ import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 
 import java.time.Instant;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
-import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -55,7 +51,7 @@ public class RecordConverter {
         this.tableDesc = tableDesc;
         this.topic_name = topicNamePrefix + this.getTopicNameSuffix(topicNamespaceMap, tableDesc.getTableName());
 
-        this.keys = tableDesc.getKeySchema().stream().map(this::sanitiseAttributeName).collect(toList());
+        this.keys = tableDesc.getKeySchema() == null ? new ArrayList<>() : tableDesc.getKeySchema().stream().map(this::sanitiseAttributeName).collect(toList());
         this.keySchema = getKeySchema(keys);
         this.valueSchema = SchemaBuilder.struct()
                                    .name(SchemaNameAdjuster.DEFAULT.adjust( "com.trustpilot.connector.dynamodb.envelope"))
